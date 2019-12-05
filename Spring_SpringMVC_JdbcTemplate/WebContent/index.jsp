@@ -57,6 +57,7 @@ ${Admin.a_name}
 </form>
 <br/><br/>
 <center>
+<!-- 学生管理系统 -->
 <a href="${pageContext.request.contextPath}/find/findAll.action"><font color="slateblue" face="楷体" size="4">查询所有学生信息</font></a>
 </center>
 <br/>
