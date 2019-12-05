@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+		
+		<!-- 数据源对象 -->
+		<bean id = "dataSource"  class = "com.alibaba.druid.pool.DruidDataSource">
+			<property name = "driverClassName" value = "com.mysql.jdbc.Driver"/>
+			<property name = "url" value = "jdbc:mysql://localhost:3306/me"/>
+			<property name = "username" value = "root"/>
+			<property name = "password" value = "625401"/>
+			<property name = "initialSize" value = "10"/>
+			<property name = "maxActive" value = "20"/>
+			<property name = "minIdle" value = "3"/>
+			<property name = "maxWait" value = "10000"/>
+		</bean>
+		
+		<!-- JdbcTemplate对象 -->
+		<bean id = "JdbcTemplate" class = "org.springframework.jdbc.core.JdbcTemplate">
+			<property name = "dataSource" ref = "dataSource"/>
+		</bean>
+		
+		<!-- Dao层对象创建 -->
+		<bean id = "userdao" class = "cn.liuy.dao.impl.UserDaoImpl">
+			<property name = "jt" ref = "JdbcTemplate"/>
+		</bean>
+		
+		<bean id = "userservice" class = "cn.liuy.service.impl.UserServiceImpl">
+			<property name = "ud" ref = "userdao"/>
+		</bean>
+		
+		<bean id = "transactionManager" class = "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+			<property name = "dataSource"  ref = "dataSource"></property>
+		</bean>
+		
+		<tx:advice  id = "av" transaction-manager="transactionManager">
+			<tx:attributes>
+				<tx:method name="select*" read-only="true"/>
+				<tx:method name="*" propagation="REQUIRED"/>
+			</tx:attributes>
+		</tx:advice>
+		
+		<aop:config>
+			<aop:pointcut expression="execution(* cn.liuy.service..*.*(..))" id="pc" />
+			<aop:advisor advice-ref="av" pointcut-ref="pc" />
+		</aop:config>
+</beans>
